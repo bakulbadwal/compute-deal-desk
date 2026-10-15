@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compute Deal Desk</title>
+<meta name="description" content="A hands-on lab for allocating and pricing scarce AI compute: shadow prices, take-or-pay vs “up to,” site portfolios and bid prices, solved live with a real optimizer (HiGHS) in your browser.">
+<meta property="og:title" content="Compute Deal Desk">
+<meta property="og:description" content="What is one more megawatt worth to us? A hands-on optimization lab for AI compute deals, solved live with HiGHS.">
+<meta property="og:image" content="https://bakulbadwal.github.io/compute-deal-desk/docs/hero.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='1' y='1' width='30' height='30' rx='7' fill='%2322385C'/%3E%3Cpath d='M6 24h5v-6h5v-5h5V8h5' fill='none' stroke='%23D6AE5E' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script>
+  // Keep the router in charge of scroll position (a hash like #/s3 never matches an element id).
+  history.scrollRestoration = "manual";
+  if (/^#s\d$/.test(location.hash)) history.replaceState(null, "", "#/" + location.hash.slice(1));
+  try { const t = new URLSearchParams(location.search).get("theme") || localStorage.getItem("cdd.theme"); if (t) document.documentElement.dataset.theme = t; } catch {}
+</script>
+</head>
+<body>
+<header class="mast">
+  <div class="mast-in">
+    <a class="brand" href="#/">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="7" fill="#22385C"/><path d="M6 24h5v-6h5v-5h5V8h5" fill="none" stroke="#D6AE5E" stroke-width="3" stroke-linejoin="round"/></svg>
+      <span><b>Compute Deal Desk</b><small>What is one more megawatt worth to us?</small></span>
+    </a>
+    <span class="mast-sp"></span>
+    <button class="iconbtn" id="ledgerBtn" type="button" aria-controls="ledger" aria-expanded="false">Price list <span class="pill" id="ledgerCount">0</span></button>
+    <button class="iconbtn" id="themeBtn" type="button" aria-label="Toggle dark mode">◐</button>
+  </div>
+</header>
+<nav class="tabs" aria-label="Steps"><div class="tabs-in" id="tabs"></div></nav>
+<div class="wrap" id="wrap">
+  <main id="main" tabindex="-1"><div class="loading">Loading the solver…</div></main>
+  <aside class="ledger" id="ledger" aria-label="Price list"></aside>
+</div>
+<footer class="foot-strip"><div class="in">
+  <span>Built by <a href="https://github.com/bakulbadwal">Bakul Badwal</a> (UVA Darden MBA ’27). Every optimum, shadow price and range is solved live by <a href="https://highs.dev">HiGHS</a> 1.15 (WebAssembly).</span>
+  <span><a href="https://github.com/bakulbadwal/compute-deal-desk">Source &amp; Python track</a> · Prices marked “at teaching prices” are illustrative.</span>
+</div></footer>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

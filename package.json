@@ -1,0 +1,6 @@
+{
+  "name": "compute-deal-desk",
+  "private": true,
+  "type": "module",
+  "scripts": { "check": "node tests/check.mjs" }
+}
