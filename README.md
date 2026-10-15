@@ -9,6 +9,10 @@
   <img src="docs/hero.png" alt="Compute Deal Desk: a compute campus in cutaway, with the grid connection drawn as the wall and a deal desk on the top floor showing the shadow price of power stepping down">
 </picture>
 
+![Step 1 in motion: nudging the grid wall raises margin at exactly the shadow price until the wall passes its allowable range, then four offers to relax the wall go on the table and the solver buys only what the staircase justifies](docs/step1.gif)
+
+*Step 1 in motion, recorded from the live page. Nudge the grid wall and margin rises at exactly $3.48M per MW, until the wall passes 300.2 MW and the price changes (the readout turns red). Then put four offers to relax the wall on the table: the solver buys all of the cooling retrofit and 4.8 MW of the substation, and passes on the rest.*
+
 Every compute deal is an allocation problem with walls: the grid connection, the liquid-cooled halls, the GPU deliveries, the take-or-pay floors. Solve it and you get a plan. You also get a **price for every wall**, what one more unit would be worth, and the range over which that price holds. That number, the *shadow price*, is the most useful sentence in a capacity negotiation, and this lab teaches you to find it, trust it, and know when it stops being true.
 
 It covers the ideas in a business-school optimization elective (formulation, sensitivity analysis, multiperiod, matching, integer and stochastic programming, nonlinear allocation, and working with GenAI on models) and goes further, pointed at compute, power and AI deals. Some steps seat you at a **neocloud** selling capacity; others at a **lab** buying it.
@@ -80,6 +84,7 @@ Play it live at the link above, or clone and run `python3 tools/serve.py`. It's 
 | `models/` | The Python twins (`highspy`) |
 | `tests/check.mjs` | The acceptance checker |
 | `tools/serve.py`, `tools/smoke.sh` | Local no-cache server; headless smoke test |
+| `tools/record-gif.mjs`, `tools/frames-to-gif.py` | Re-record the README GIF from the live page (headless Chrome over the DevTools protocol, then ffmpeg) |
 | [`CASE_STUDY.md`](CASE_STUDY.md) | Why this exists and the product decisions behind it |
 
 ## Siblings

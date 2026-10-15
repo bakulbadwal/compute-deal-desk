@@ -166,9 +166,14 @@ export async function render(root) {
     // supply curve of switched-on offers, cheapest first
     const on = S1_OFFERS.filter(o => p.offers[o.id]).sort((a, b) => a.price - b.price);
     let cum = 0;
+    let lastLabelY = Infinity, lastLabelX = -Infinity;
     for (const o of on) {
       g.append(s("rect", { x: x(cum), y: y(o.price), width: x(cum + o.size) - x(cum), height: y(0) - y(o.price), fill: css("--blue-soft"), stroke: css("--blue"), "stroke-width": 1.5 }));
-      svg.append(s("text", { class: "halo", x: x(cum) + 4, y: y(o.price) - 5, fill: css("--blue") }, o.label.split(",")[0].replace("Behind-the-meter ", "")));
+      // Stagger labels of neighbouring small offers so they don't collide.
+      let ly = y(o.price) - 5;
+      if (x(cum) - lastLabelX < 110 && Math.abs(ly - lastLabelY) < 14) ly = lastLabelY - 14;
+      lastLabelX = x(cum); lastLabelY = ly;
+      svg.append(s("text", { class: "halo", x: x(cum) + 4, y: ly, fill: css("--blue") }, o.label.split(",")[0].replace("Behind-the-meter ", "")));
       cum += o.size;
     }
     let d = "";
