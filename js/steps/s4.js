@@ -1,5 +1,5 @@
 // Step 4 · Lumpy choices — integer programs, logical constraints, branch-and-bound, and a heuristic without a bound.
-import { h, s, f, slider, toggle, predict, clicks, say, beyond, modelCard, readout, scheduler, css, ledger, touch, legend } from "../ui.js";
+import { h, s, f, slider, toggle, predict, clicks, say, beyond, modelCard, readout, scheduler, css, onFill, ledger, touch, legend } from "../ui.js";
 import { S4, S4_SITES, S4_PACK, s4Model, branchAndBound, ffd, packModel } from "../models.js";
 
 export async function render(root) {
@@ -28,14 +28,14 @@ export async function render(root) {
     h("div", { class: "readouts" }, ro.lp, ro.ip, ro.gap, ro.nodes)));
 
   const treeBox = h("div", { class: "chartbox" }), nodeInfo = h("div", { class: "callout" });
-  const stepper = slider({ label: "Nodes revealed", min: 1, max: 1, step: 1, value: 1, fmt: v => `${v}`, id: "s4t", oninput: v => { shown = v; drawTree(); } });
+  const stepper = slider({ label: "Nodes revealed", min: 1, max: 1, step: 1, value: 1, fmt: v => `${v}`, id: "s4t", oninput: v => { if (!bb) return; shown = v; drawTree(); } });
   root.append(h("div", { class: "card" },
     h("div", { class: "card-h" }, h("h3", {}, "(b) Branch-and-bound, node by node"), h("span", { class: "sub" }, "Each node is an LP with some sites forced to 0 or 1. Step through the search.")),
     treeBox, legend([[css("--sheet-2"), "Branched (fractional LP)"], [css("--green"), "Whole-site plan found"], [css("--rule-strong"), "Pruned: bound no better than the best plan so far"], [css("--wall"), "Infeasible"]]),
     h("div", { class: "grid2", style: { marginTop: "10px" } }, h("div", { class: "ctrl" }, stepper, h("div", { class: "btnrow" },
-      h("button", { class: "btn small ghost", type: "button", onclick: e => { shown = 1; stepper.set(1); drawTree(); touch(e.target); } }, "Start over"),
-      h("button", { class: "btn small", type: "button", onclick: e => { shown = Math.min(bb.nodes.length, shown + 1); stepper.set(shown); drawTree(); touch(e.target); } }, "Next node →"),
-      h("button", { class: "btn small ghost", type: "button", onclick: e => { shown = bb.nodes.length; stepper.set(shown); drawTree(); touch(e.target); } }, "Run to the end"))), nodeInfo)));
+      h("button", { class: "btn small ghost", type: "button", onclick: e => { if (!bb) return; shown = 1; stepper.set(1); drawTree(); touch(e.target); } }, "Start over"),
+      h("button", { class: "btn small", type: "button", onclick: e => { if (!bb) return; shown = Math.min(bb.nodes.length, shown + 1); stepper.set(shown); drawTree(); touch(e.target); } }, "Next node →"),
+      h("button", { class: "btn small ghost", type: "button", onclick: e => { if (!bb) return; shown = bb.nodes.length; stepper.set(shown); drawTree(); touch(e.target); } }, "Run to the end"))), nodeInfo)));
 
   const packBox = h("div", { class: "chartbox" });
   root.append(h("div", { class: "card" },
@@ -60,7 +60,7 @@ export async function render(root) {
     card,
     beyond([
       ["Deal angle", "The 20–30 MW pivot", "AI Deals §1: labs are now scouting portfolios of 20–30 MW sites for speed instead of single gigawatt campuses. That's this model: lumpy sites, an early-MW constraint, and a deal-team bandwidth cap."],
-      ["Back to step 1", "Lumpy relief", "Step 1's LP bought 4.8 MW of a 40 MW substation. A real upgrade is all or nothing: make that buy variable binary and the substation is either worth the full contribution or it isn't."],
+      ["Back to step 1", "Lumpy relief", "With all four offers on, step 1's LP bought 4.8 MW of a 40 MW substation. A real upgrade is all or nothing: make that buy variable binary and the substation is either worth the full contribution or it isn't."],
     ]));
 
   function drawSites(lp, ip) {
@@ -102,7 +102,7 @@ export async function render(root) {
       const last = i === vis.length - 1;
       const c = s("circle", { cx: x(pos.get(n.id)), cy: y(n.depth), r: last ? 13 : 10, fill: col(n), stroke: last ? css("--brass") : css("--ink"), "stroke-width": last ? 3 : 1.2 });
       c.append(s("title", {}, `Node ${n.id}: ${n.status}${n.bound !== undefined ? `, bound ${f.m(n.bound, 1)}` : ""}`));
-      svg.append(c, s("text", { x: x(pos.get(n.id)), y: y(n.depth) + 4, "text-anchor": "middle", "font-size": 10, fill: n.status === "integer" || n.status === "infeasible" ? css("--sheet") : css("--ink") }, n.id));
+      svg.append(c, s("text", { x: x(pos.get(n.id)), y: y(n.depth) + 4, "text-anchor": "middle", "font-size": 10, "font-weight": 600, fill: n.status === "integer" || n.status === "infeasible" ? onFill(col(n)) : css("--ink") }, n.id));
     });
     treeBox.innerHTML = ""; treeBox.append(svg);
     const n = vis[vis.length - 1];
@@ -129,8 +129,9 @@ export async function render(root) {
         svg.append(s("rect", { x: x0, y: base - 72 * scl, width: bw, height: 72 * scl, fill: "none", stroke: css("--ink-3"), "stroke-dasharray": "3 3" }));
         let acc = 0;
         for (const it of b.items) {
-          svg.append(s("rect", { x: x0 + 2, y: base - (acc + it) * scl + 1, width: bw - 4, height: it * scl - 2, rx: 3, fill: it === 28 ? css("--blue") : css("--plum") }));
-          svg.append(s("text", { x: x0 + bw / 2, y: base - (acc + it / 2) * scl + 4, "text-anchor": "middle", fill: css("--sheet"), "font-size": 10 }, it));
+          const fill = it === 28 ? css("--blue") : css("--plum");
+          svg.append(s("rect", { x: x0 + 2, y: base - (acc + it) * scl + 1, width: bw - 4, height: it * scl - 2, rx: 3, fill }));
+          svg.append(s("text", { x: x0 + bw / 2, y: base - (acc + it / 2) * scl + 4, "text-anchor": "middle", fill: onFill(fill), "font-size": 10, "font-weight": 600 }, it));
           acc += it;
         }
         svg.append(s("text", { x: x0 + bw / 2, y: base + 14, "text-anchor": "middle" }, `${b.used}/72`));
@@ -139,7 +140,7 @@ export async function render(root) {
     };
     packBox.innerHTML = "";
     packBox.append(h("div", { class: "grid2 even" }, draw(F, `First-fit decreasing: ${F.length} racks`), draw(opt, `Exact MIP: ${opt.length} racks`)),
-      h("p", { class: "note", html: `Jobs of 28 and 22 GPUs. First-fit decreasing (the rule most schedulers start from) puts the two 28s together, leaving 16 GPUs stranded in every rack, and needs <b>${F.length}</b> racks. The exact solve pairs one 28 with two 22s (72 exactly) and needs <b>${opt.length}</b>, which equals the lower bound ⌈${S4_PACK.reduce((a, c) => a + c, 0)}/72⌉ = ${lower}. That lower bound is what lets you <i>prove</i> it's optimal. At ~$3M a rack, the heuristic quietly wastes one; that's fragmentation.` }));
+      h("p", { class: "note", html: `Jobs of 28 and 22 GPUs. First-fit decreasing (the rule most schedulers start from) pairs the 28s first (56 of 72, stranding 16 GPUs in each of those racks), then fits the 22s three to a rack (66 of 72), and needs <b>${F.length}</b> racks. The exact solve pairs one 28 with two 22s (72 exactly) and needs <b>${opt.length}</b>, which equals the lower bound ⌈${S4_PACK.reduce((a, c) => a + c, 0)}/72⌉ = ${lower}. That lower bound is what lets you <i>prove</i> it's optimal. At ~$3M a rack, the heuristic quietly wastes one; that's fragmentation.` }));
     ledger.put("s4-rack", { what: "Step 4 · one stranded NVL72 rack from first-fit packing", price: "≈ $3.0M of capex + 120 kW", note: "Ledger rack cost. A heuristic without a bound can't see it." });
   }
 
@@ -148,7 +149,7 @@ export async function render(root) {
     const lp = await model.solve({ relax: true }), ip = await model.solve();
     if (ip.status !== "optimal") {
       siteTbl.innerHTML = `<div class="callout warn">No portfolio meets these rules (solver: ${ip.status}). Loosen a requirement.</div>`;
-      [ro.lp, ro.ip, ro.gap, ro.nodes].forEach(r => r.set("—")); treeBox.innerHTML = ""; nodeInfo.textContent = ""; return;
+      [ro.lp, ro.ip, ro.gap, ro.nodes].forEach(r => r.set("—")); bb = null; treeBox.innerHTML = ""; nodeInfo.textContent = "No tree to walk: the root LP is already infeasible."; return;
     }
     drawSites(lp, ip);
     bb = await branchAndBound(model);

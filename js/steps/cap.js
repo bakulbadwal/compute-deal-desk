@@ -28,14 +28,15 @@ export async function render(root) {
     opt: slider({ label: "“Up to” reserved (MW)", min: 0, max: 300, step: 1, value: 0, fmt: v => f.mw(v), id: "capo", oninput: v => { plan.opt = v; runMine(); } }),
     upg: slider({ label: "Campus power upgrade (MW)", min: 0, max: 40, step: 1, value: 0, fmt: v => f.mw(v), id: "capu", oninput: v => { plan.upg = v; runMine(); } }),
   };
-  const setPlan = q => { plan = { ...q }; for (const k of Object.keys(sl)) sl[k].set(Math.round(plan[k])); runMine(); };
+  // Whole MW, so the sliders and the scored plan always agree (the solver's own plan rounds to within 0.02% of itself).
+  const setPlan = q => { plan = Object.fromEntries(Object.keys(sl).map(k => [k, Math.round(q[k] || 0)])); for (const k of Object.keys(sl)) sl[k].set(plan[k]); runMine(); };
   const grade = h("div", { class: "callout" });
   const ro = { exp: readout("Expected cost", "", { cls: "brass" }), worst: readout("Worst future's cost", "", {}), slo: readout("Inference demand served (expected)", "", {}), gap: readout("Versus the solver's plan", "", {}) };
   const scenBox = h("div", { class: "chartbox" }), mixBox = h("div", { class: "chartbox" });
   root.append(h("div", { class: "card" },
     h("div", { class: "card-h" }, h("h3", {}, "Build your plan"), h("span", { class: "sub" }, "Set the four contracts. The solver plays out every future with the best spot and exercise decisions, then scores your plan.")),
     h("div", { class: "grid2" }, h("div", {}, h("h4", {}, "Cost in each future: your plan vs the solver's"), scenBox, legend([[css("--blue"), "Your plan"], [css("--brass"), "Solver's plan"]]), h("h4", { style: { marginTop: "12px" } }, "Your capacity mix, base-case future"), mixBox,
-      legend([[css("--chart-6"), "Own campus"], [css("--plum"), "Hyperscaler"], [css("--blue"), "Neocloud take-or-pay"], [css("--green"), "“Up to” exercised"], [css("--brass"), "Spot"], [css("--wall"), "Unserved"]])),
+      legend([[css("--chart-6"), "Own campus"], [css("--plum"), "Hyperscaler"], [css("--blue"), "Neocloud take-or-pay"], [css("--green"), "“Up to” exercised"], [css("--brass"), "Spot"], [css("--wall"), "Unserved"], [css("--ink"), "Inference demand + training", "line"]])),
       h("div", { class: "ctrl" }, ...Object.values(sl),
         h("div", { class: "btnrow" },
           h("button", { class: "btn small", type: "button", onclick: e => { touch(e.target); setPlan(best.r.x); } }, "Show me the solver's plan"),

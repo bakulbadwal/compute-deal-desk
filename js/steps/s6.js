@@ -18,7 +18,7 @@ export async function render(root) {
 
   // (a) cost curve
   const curveBox = h("div", { class: "chartbox" });
-  const ro = { rp: readout("Best commitment (two-stage plan)", "", { cls: "brass" }), ev: readout("Plan to the forecast", "", {}), fr: readout("Critical fractile (deep spot market)", "", {}), mape: readout("Commit that minimizes forecast error (MAPE)", "", {}) };
+  const ro = { rp: readout("Best commitment (two-stage plan)", "", { cls: "brass" }), ev: readout("Plan to the forecast (the scenario mean)", "", {}), fr: readout("Critical fractile (deep spot market)", "", {}), mape: readout("Commit that minimizes forecast error (MAPE)", "", {}) };
   const ctrlA = h("div", { class: "ctrl" },
     slider({ label: "Forecast uncertainty (CV)", min: 0.02, max: 0.5, step: 0.01, value: p.cv, fmt: v => f.pct(v), id: "s6cv", oninput: v => { p.cv = v; run(); } }),
     slider({ label: "Take-or-pay price, $M per MW-year", min: 6, max: 15, step: 0.1, value: p.commitPrice, fmt: v => `${f.m(v, 1)} ≈ ${f.gh(perMWyrToGpuHr(v))}/GPU-hr`, id: "s6cp", oninput: v => { p.commitPrice = v; run(); } }),
@@ -83,8 +83,13 @@ export async function render(root) {
     for (const d of scen) g.append(s("circle", { cx: x(d), cy: H - m.b - 6, r: 3, fill: css("--ink-3") }));
     g.append(s("polyline", { points: cs.map((c, i) => `${x(c)},${y(vals[i])}`).join(" "), fill: "none", stroke: css("--ink"), "stroke-width": 2.4 }));
     let mc = 0, mv = Infinity; for (let c = lo; c <= hi; c += 0.5) { const v = s6Mape(c, scen); if (v < mv) { mv = v; mc = c; } }
-    const mark = (c, col, lab, dy) => { g.append(s("line", { x1: x(c), x2: x(c), y1: m.t, y2: H - m.b, stroke: col, "stroke-width": 2, "stroke-dasharray": "5 3" })); svg.append(s("text", { class: "halo", x: x(c) + 4, y: m.t + 12 + dy, fill: col, "font-weight": 600 }, lab)); };
-    mark(evC, css("--blue"), "forecast", 0); mark(mc, css("--plum"), "lowest MAPE", 16); mark(rpC, css("--brass"), "best", 32);
+    // Three markers often sit within a few MW of each other: stack their labels by x order and put the leftmost on its left.
+    const marks = [[evC, css("--blue"), "forecast"], [mc, css("--plum"), "lowest MAPE"], [rpC, css("--brass"), "best"]].sort((a, b) => a[0] - b[0]);
+    marks.forEach(([c, col, lab], i) => {
+      g.append(s("line", { x1: x(c), x2: x(c), y1: m.t, y2: H - m.b, stroke: col, "stroke-width": 2, "stroke-dasharray": "5 3" }));
+      const left = i === 0 && marks.length > 1 && x(marks[1][0]) - x(c) < 70;
+      svg.append(s("text", { class: "halo", x: x(c) + (left ? -5 : 5), y: m.t + 12 + i * 15, fill: col, "font-weight": 600, "text-anchor": left ? "end" : "start" }, `${lab} ${f.n(c, 0)}`));
+    });
     curveBox.innerHTML = ""; curveBox.append(svg);
     return { mc, mv };
   }
@@ -118,8 +123,8 @@ export async function render(root) {
     const ov = await s6OptionValue(p);
     optBox.append(h("div", { class: "readouts" },
       readout("Value of the “up to” right (at this fee)", f.m(ov.value, 1), { cls: "good", sub: "RP without it − RP with it" }),
-      readout("Indifference fee", `${f.m(ov.indifferenceFee, 2)}/MW-yr`, { cls: "brass", sub: `≈ ${f.gh(perMWyrToGpuHr(ov.indifferenceFee))} per GPU-hour reserved` }),
-      readout("Optimal mix with the option", `${f.n(ov.commit, 0)} + ${f.n(ov.reserve, 0)} MW`, { sub: "take-or-pay + “up to”" })),
+      readout("Indifference fee", f.m(ov.indifferenceFee, 2), { cls: "brass", sub: `per MW-year reserved ≈ ${f.gh(perMWyrToGpuHr(ov.indifferenceFee))} per GPU-hour` }),
+      readout("Optimal mix with the option", `${f.n(ov.commit, 0)} + ${f.n(ov.reserve, 0)}`, { sub: "MW of take-or-pay + MW of “up to”" })),
       h("p", { class: "note", html: `The indifference fee is the highest reservation fee at which the best plan still reserves any “up to” capacity. A neocloud asking more than that is pricing the flexibility above what it's worth to this buyer. ${p.optionOn ? "" : "Switch the option on to see the plan use it."}` }));
     card.refresh();
     runRisk();

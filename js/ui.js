@@ -174,8 +174,17 @@ export function axes({ x, y, W, H, m, xt, yt, xfmt = v => v, yfmt = v => v, xlab
   if (ylab) g.append(s("text", { class: "lbl", x: 12, y: m.t + (H - m.t - m.b) / 2, transform: `rotate(-90 12 ${m.t + (H - m.t - m.b) / 2})`, "text-anchor": "middle" }, ylab));
   return g;
 }
-export const legend = items => h("div", { class: "legend" }, items.map(([c, t]) => h("span", {}, h("i", { style: { background: c } }), t)));
+/** Legend: [color, label] draws a swatch; [color, label, "line"] draws a line marker instead. */
+export const legend = items => h("div", { class: "legend" }, items.map(([c, t, kind]) => h("span", {}, h("i", { class: kind === "line" ? "line" : "", style: kind === "line" ? { background: "transparent", borderTop: `2px solid ${c}` } : { background: c } }), t)));
 export const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+/** Text color that reads on a filled shape: dark ink on light fills, paper on dark fills (works in both themes). */
+export function onFill(color) {
+  const m = /^#([0-9a-f]{6})$/i.exec(color || "");
+  if (!m) return css("--sheet");
+  const n = parseInt(m[1], 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+  const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  return lum > 0.6 ? "#1E2430" : "#FFFCF4";
+}
 export function tooltip(box) {
   const t = h("div", { class: "tip" }); box.append(t);
   return {

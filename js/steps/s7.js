@@ -50,7 +50,7 @@ export async function render(root) {
       h("li", { html: "<b>Nonlinear isn't exotic.</b> Equal marginal returns is the whole rule. The water line λ is the Lagrange multiplier, which is the shadow price of compute: what one more MW-year would add." }),
       h("li", { html: "<b>Some bets get zero.</b> If a bet's first MW pays less than λ, it's unfunded. At the default budget the agents bet gets nothing. Raise the budget and it enters once λ falls below its first-MW return." }),
       h("li", { html: "<b>Chinchilla is a Lagrangian too.</b> Split a fixed compute budget between parameters and tokens so the marginal loss reduction per FLOP is equal on both sides." }),
-      h("li", { html: "<b>The optimum is only as good as the fit.</b> At 10²⁴ FLOPs, Hoffmann's unrounded fit says ~62 tokens per parameter, the paper's rounded printed values say ~98, and Epoch's 2024 refit says ~18. Rounding one exponent (β 0.2849 → 0.28) moves the rule by about 60%. That's predict-then-optimize risk in the most-cited scaling law." }))),
+      h("li", { html: "<b>The optimum is only as good as the fit.</b> At 10²⁴ FLOPs, Hoffmann's unrounded fit says ~62 tokens per parameter, the paper's rounded printed values say ~98, and Epoch's 2024 refit says ~18. Rounding the two exponents to two decimals (α 0.3392 → 0.34, β 0.2849 → 0.28; β does most of it) moves the rule by about 60%. That's predict-then-optimize risk in the most-cited scaling law." }))),
     say("Fund every bet until its next megawatt pays the same; that common number is what compute is worth to us. And when someone quotes a tokens-per-parameter rule, ask which fit and which rounding."),
     card,
     beyond([

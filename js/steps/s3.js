@@ -106,7 +106,7 @@ export async function render(root) {
       const parts = S3_POOLS.map((pl, j) => [pl, lp.x[`y_${i}_${j}`]]).filter(([, v]) => v > 1e-6 && v < 1 - 1e-6);
       if (parts.length > 1) ex = `${S3_JOBS[i].label}: ${parts.map(([pl, v]) => `${v.toFixed(2)} in ${pl.label.split(" · ")[1]}`).join(", ")}`;
     }
-    gapBox.innerHTML = ""; gapBox.append(h("div", { class: "tbl-wrap" }, tbl), h("p", { class: "note", html: `Red cells: the LP splits a job across pools${ex ? ` (${ex})` : ""}, which you can't do with one training run or one serving deployment. The MIP (✓) is the real plan.` }));
+    gapBox.innerHTML = ""; gapBox.append(h("div", { class: "tbl-wrap" }, tbl), h("p", { class: "note", html: `Orange cells: the LP splits a job across pools${ex ? ` (${ex})` : ""}, which you can't do with one training run or one serving deployment. The MIP (✓) is the real plan.` }));
     ledger.put("s3-gap", { what: "Step 3 · keeping every job whole (8 jobs, 4 pools)", price: `${f.m(ip.obj - lp.obj, 2)} per quarter`, note: "The integrality gap: what indivisibility costs versus the fractional bound." });
   }
 

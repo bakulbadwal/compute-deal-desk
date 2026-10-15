@@ -77,7 +77,7 @@ export async function render(root) {
       h("li", { html: "<b>The dual is a price list with an expiry quantity.</b> Every shadow price comes with an allowable range. Inside it, the price is exact. Outside it, another wall binds and the price changes." }),
       h("li", { html: "<b>The grid's shadow price is the margin on what one more MW lets you run, divided by the PUE.</b> It is <i>not</i> the Freed Megawatts “~8.8×” ratio. That's depreciation of freed compute over the energy saving, and it explains why the capacity value dwarfs the power bill, but it's a different number." }),
       h("li", { html: "<b>Reduced cost</b> answers “how much better would an unused product need to get to earn a MW?” The on-demand API sits out by a few hundred thousand dollars per MW-year. <b>Cost ranging</b> answers “how far can a price move before the plan changes?”" }),
-      h("li", { html: "<b>Walls interact.</b> Power without GPUs is worth almost nothing: past 15 MW the binding wall is Blackwell deliveries, and the substation's last 35 MW buys you batch work. And the LP happily buys 4.8 MW of a 40 MW substation. Real upgrades are lumpy; that's step 4." }))),
+      h("li", { html: "<b>Walls interact.</b> Power without GPUs is worth almost nothing: past 15 MW the binding wall is Blackwell deliveries, and the substation's last 25 MW buys you batch work at $0.14M a MW. Put all four offers on the table and the LP buys the whole 10.4 MW cooling retrofit plus just 4.8 MW of the 40 MW substation: 15.2 MW in all, the width of the range. Real upgrades are lumpy; that's step 4." }))),
     say("The grid is worth $3.48 million a megawatt-year to us, but only for the next 15 megawatts. After that we're GPU-bound, and more power is worth almost nothing until the next delivery lands."),
     card,
     beyond([
@@ -203,7 +203,7 @@ export async function render(root) {
     const r2 = await m2.solve();
     const al = rowAllow(row, base.act[sel], base.range.rows[sel]);
     ro.dual.set(f.m(base.dual[sel], 3), sel === "grid" ? `per MW-year ≈ ${f.gh(perMWyrToGpuHr(base.dual[sel] * p.pue))} per GPU-hour of IT` : "per unit per year");
-    ro.range.set(`${fmtAllow(rhs - al.dec)} – ${fmtAllow(rhs + al.inc)}`, `today: ${f.n(rhs, 1)}`);
+    ro.range.set(`${al.dec === INF ? "−∞" : f.n(rhs - al.dec, 1)} to ${al.inc === INF ? "∞" : f.n(rhs + al.inc, 1)}`, `today: ${f.n(rhs, 1)}`);
     ro.pred.set(f.m(base.dual[sel] * delta, 2));
     if (r2.status === "optimal") {
       ro.act.set(f.m(r2.obj - base.obj, 2));

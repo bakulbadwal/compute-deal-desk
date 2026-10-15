@@ -60,7 +60,7 @@ ledger.listeners.push(renderLedger);
 $("#ledgerBtn").addEventListener("click", () => {
   const open = side.classList.toggle("open");
   $("#ledgerBtn").setAttribute("aria-expanded", String(open));
-  if (open && window.innerWidth <= 1180) side.scrollIntoView({ behavior: "smooth" });
+  if (open && (window.innerWidth <= 1180 || current === "home")) side.scrollIntoView({ behavior: "smooth", block: "nearest" });
 });
 $("#themeBtn").addEventListener("click", () => {
   const root = document.documentElement;
@@ -79,7 +79,7 @@ function landing() {
         h("p", { class: "lede", html: "Every AI compute deal is an allocation problem with walls: the grid connection, the halls, the GPU deliveries, the contract floors. The <b>shadow price</b> of each wall is what one more unit would be worth, and it's the number that wins negotiations. This lab teaches you to find it, trust it, and know when it stops being true." }),
         h("p", { class: "lede small muted", html: "It covers the ideas in Darden's <i>Optimization</i> elective (GBUS 8631) and goes past them, pointed at compute, power and deals. Nothing is canned: every optimum, dual and range on these pages is solved live by <a href=\"https://highs.dev\">HiGHS</a>, an open-source LP/MIP solver running in your browser." }),
         h("div", { class: "btnrow" }, h("a", { class: "btn", href: "#/s0" }, "Start with step 0 →"), h("a", { class: "btn ghost", href: "#/s1" }, "Jump to the keystone: step 1"))),
-      h("div", { html: campusArt() })),
+      h("figure", { style: { margin: 0 } }, h("div", { html: campusArt() }), h("figcaption", { class: "hero-cap" }, "The campus this lab prices: 250 MW of IT behind a 285 MW grid connection (PUE 1.14), the Hyperscale Ledger's scenario. Steps 0, 1 and 5 sell capacity like this; the rest buy it."))),
     h("div", { class: "card flat" },
       h("h3", {}, "Two seats at the table"),
       h("p", { html: "Some steps put you on the <span class=\"chip seat\">neocloud campus</span> selling capacity; others put you at a <span class=\"chip seat\">lab</span> buying it. Deal teams that understand the counterparty's shadow prices negotiate better, so you'll sit on both sides." }),
@@ -88,7 +88,7 @@ function landing() {
         h("div", {}, h("b", {}, "Hyperscale Ledger"), "The campus: audited GPU specs, rack power, the 250 MW scenario this lab borrows. ", h("a", { href: "https://bakulbadwal.github.io/hyperscale-ledger/" }, "Open")),
         h("div", { class: "me" }, h("b", {}, "Compute Deal Desk"), "The allocation: who gets capacity, on which contract, at what price, and what a wall is worth."))),
     h("h2", { style: { marginTop: "26px" } }, "The ten stops"),
-    h("div", { class: "map" }, STEPS.map(st => h("a", { href: `#/${st.id}` },
+    h("div", { class: "map" }, STEPS.map(st => h("a", { href: `#/${st.id}`, "data-k": st.k, class: progress.done.has(st.id) ? "done" : null },
       h("div", { class: "k" }, `STEP ${st.k} · ${st.seat.toUpperCase()}`), h("b", {}, st.title), h("span", {}, st.blurb), h("div", { class: "sess" }, "Course: " + st.session)))),
     h("div", { class: "card flat", style: { marginTop: "22px" } },
       h("h3", {}, "Honest about models"),
@@ -106,7 +106,8 @@ async function route() {
   renderTabs(id);
   main.innerHTML = "";
   wrap.classList.toggle("full", id === "home");
-  side.hidden = id === "home";
+  // The landing page shows the price list only when toggled open (CSS: .wrap.full .ledger).
+  side.classList.remove("open"); $("#ledgerBtn").setAttribute("aria-expanded", "false");
   if (id === "home") { main.append(landing()); document.title = "Compute Deal Desk"; window.scrollTo(0, 0); return; }
   const st = STEPS.find(s => s.id === id);
   document.title = `${st.k} · ${st.title} — Compute Deal Desk`;

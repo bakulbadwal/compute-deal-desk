@@ -37,7 +37,10 @@ Static numbers in the copy, and where each comes from (defaults):
 | Critical fractile 37.5% | (16 − 10) / 16 | closed form |
 | With an “up to”: ~240 MW take-or-pay + ~110 MW “up to” | 241.6 + 108.9 | `s6.option.*` |
 | Indifference fee $4.75M per MW-year ≈ $0.90/GPU-hr | 4.75 → 0.904 | `s6.option.indifferenceFee` |
-| Chinchilla at 10²⁴: ~62 / ~98 / ~18 tokens per parameter; rounding β moves it ~60% | 61.98 / 97.73 / 18.14; 97.73 / 61.98 = 1.58 | `s7.chin.*.ratio` |
+| Chinchilla at 10²⁴: ~62 / ~98 / ~18 tokens per parameter; rounding α and β to two decimals moves it ~60% (β alone: 92.45, +49%) | 61.98 / 97.73 / 18.14; 97.73 / 61.98 = 1.58 | `s7.chin.*.ratio` |
+| Step 1: with all four offers on, the LP buys 10.4 MW of cooling retrofit + 4.8 MW of the 40 MW substation (15.2 MW) | 10.40 + 4.80 | `s1Model` with `offers` all on |
+| Step 2: demand duals by quarter 0 / 4.20 / 0 / 0 / 0 / 4.20 / 1.83 × 6 (spot where only spot can land, zero where the floor over-covers, build price from Q3 '28) | as stated | `s2.dual.demand_*` |
+| Step 4: FFD packs 56 / 56 / 66 / 66 / 44 (two racks strand 16 GPUs each) | 5 racks | `s4.pack.ffd` |
 | Capstone: a MW of campus power ≈ $16.5M over six quarters | 16.50 | Σ power-cap duals |
 | Capstone: all-spot costs ~2.5× and serves 55% | 2.50×, 0.550 | fixed-plan re-solve |
 | Step 8: A $417M, B $282M (serves only 30 MW in Q2), C $543M, D $465M | as stated | the four formulations |

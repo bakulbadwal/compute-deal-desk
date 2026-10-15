@@ -99,7 +99,9 @@ export async function render(root) {
       else { p1 = [0, l.c / l.b]; p2 = [300, (l.c - l.a * 300) / l.b]; }
       const col = bind ? css("--wall") : css("--rule-strong");
       g.append(s("line", { x1: x(p1[0]), y1: y(p1[1]), x2: x(p2[0]), y2: y(p2[1]), stroke: col, "stroke-width": bind ? 3 : 1.6, "stroke-dasharray": bind ? null : "5 4" }));
-      const pos = { grid: [16, 246, "start"], demand: [296, p.inferDemand + 5, "end"], fabric: [Math.min(292, p.fabric - 0.4 * 12) + 4, 12, "start"], anchor: [p.anchor + 3, 252, "start"] }[l.id];
+      // Label positions chosen so no two labels share a corner: grid at the top-left, fabric above the grid line at the top,
+      // anchor floor along the x-axis, demand at the right end of its own line.
+      const pos = { grid: [8, p.grid - 14, "start"], demand: [296, p.inferDemand + 6, "end"], fabric: [p.fabric - 0.4 * 236 + 4, 236, "start"], anchor: [p.anchor + 3, 6, "start"] }[l.id];
       svg.append(s("text", { class: "halo", x: x(pos[0]), y: y(pos[1]), fill: bind ? css("--wall-d") : css("--ink-3"), "font-weight": bind ? 600 : 400, "text-anchor": pos[2] }, wallNames[l.id]));
     }
     // iso-margin line through the optimum

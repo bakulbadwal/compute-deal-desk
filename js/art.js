@@ -8,9 +8,14 @@ export function campusArt() {
 <svg class="hero-art" viewBox="0 0 640 450" role="img" aria-labelledby="artT artD">
   <title id="artT">A compute campus in cutaway</title>
   <desc id="artD">A substation feeds a three-floor data hall: air-cooled racks at the bottom, liquid-cooled racks in the middle, cooling on the roof, and the deal desk on the top floor, where a screen shows the shadow price of power stepping down.</desc>
+  <defs>
+    <pattern id="ledgerLines" width="640" height="24" patternUnits="userSpaceOnUse"><line x1="0" y1="23.5" x2="640" y2="23.5" stroke="var(--rule)" stroke-width="1"/></pattern>
+    <clipPath id="artClip"><rect x="0" y="0" width="640" height="450" rx="14"/></clipPath>
+  </defs>
   <rect x="0" y="0" width="640" height="450" rx="14" fill="var(--sheet)" stroke="var(--rule-strong)"/>
+  <rect x="0" y="0" width="640" height="392" fill="url(#ledgerLines)" opacity=".7" clip-path="url(#artClip)"/>
   <!-- ground -->
-  <rect x="0" y="392" width="640" height="58" rx="0" fill="var(--grey-soft)"/>
+  <rect x="0" y="392" width="640" height="58" rx="0" fill="var(--grey-soft)" clip-path="url(#artClip)"/>
   <line x1="0" y1="392" x2="640" y2="392" stroke="var(--ink)" stroke-width="1.5"/>
   <!-- transmission tower + lines -->
   <g stroke="var(--ink)" stroke-width="1.5" fill="none">
@@ -50,7 +55,8 @@ export function campusArt() {
     <rect x="240" y="156" width="6" height="34" fill="var(--ink-2)"/><rect x="368" y="156" width="6" height="34" fill="var(--ink-2)"/>
     <rect x="262" y="104" width="92" height="40" rx="3" fill="var(--navy)" stroke="var(--ink)" stroke-width="1.2"/>
     <path d="M270 112 H 290 V 120 H 312 V 132 H 330 V 136 H 346" fill="none" stroke="var(--brass)" stroke-width="2.5" stroke-linejoin="round"/>
-    <text x="308" y="141" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="7.5" fill="var(--paper)">$/MW · shadow price</text>
+    <text x="308" y="141" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="7.5" fill="var(--brass-soft)">$/MW · shadow price</text>
+    <text x="214" y="408" font-family="IBM Plex Mono, monospace" font-size="10.5" font-weight="600" fill="var(--ink-2)">250 MW IT</text><text x="214" y="422" font-family="IBM Plex Sans, sans-serif" font-size="10.5" fill="var(--ink-3)">six products, five walls</text>
     <circle cx="410" cy="132" r="9" fill="var(--ink-2)"/>
     <path d="M396 190 V 156 Q 410 142 424 156 V 190" fill="var(--plum)"/>
     <rect x="440" y="120" width="86" height="58" rx="2" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.2"/>

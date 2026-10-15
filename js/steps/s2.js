@@ -10,10 +10,10 @@ export async function render(root) {
   root.append(
     h("p", { class: "lede", html: "Now you're on the other side of the table: <b>compute strategy at a lab</b>. Demand grows 10% a quarter. You own a 120 MW campus, and an old 60 MW lease runs out at the end of 2027. You can <b>build</b> (cheapest per quarter, but power and construction take six quarters), <b>lease from a neocloud</b> (two quarters to energize, eight-quarter tranches), or buy <b>spot</b> (no lead time, expensive, thin). And the board already signed a <b>take-or-pay floor</b>: at least 150 MW leased from Q3 '27 to Q2 '28." }),
     predict({
-      q: "Where is one more MW of demand most expensive to serve?",
-      options: ["In the next two quarters", "In the middle of the plan", "In the last quarters", "It's the same every quarter"],
+      q: "One more MW of demand in Q2 '27 versus one more in Q3 '29: which costs more to serve, and by how much?",
+      options: ["Q2 '27, more than 2×", "Q3 '29, more than 2×", "About the same"],
       answer: 0,
-      explain: "Lead times set the marginal price. Next quarter, nothing but spot can arrive, so the next MW costs the spot price. Two quarters out, a lease can land; six quarters out, a build can. The bottom chart plots exactly this: the dual of each quarter's demand row.",
+      explain: "Lead times set the marginal price. By Q2 '27 nothing but spot can arrive, so the next MW costs the spot price, $4.20M. By Q3 '29 a build decided now can land, so the next MW costs the build price, $1.83M. The bottom chart plots this for every quarter: the dual of each quarter's demand row.",
     }));
 
   const stackBox = h("div", { class: "chartbox" }), priceBox = h("div", { class: "chartbox" });
@@ -38,7 +38,7 @@ export async function render(root) {
   );
   root.append(h("div", { class: "card" },
     h("div", { class: "card-h" }, h("h3", {}, "The ladder"), h("span", { class: "sub" }, "Capacity in place each quarter, by source, against demand.")),
-    h("div", { class: "grid2" }, h("div", {}, stackBox, legend([[css("--chart-6"), "Owned campus"], [css("--plum"), "Old lease"], [css("--blue"), "New neocloud leases"], [css("--green"), "Builds"], [css("--brass"), "Spot"], [css("--wall"), "Unserved"]]),
+    h("div", { class: "grid2" }, h("div", {}, stackBox, legend([[css("--chart-6"), "Owned campus"], [css("--plum"), "Old lease"], [css("--blue"), "New neocloud leases"], [css("--green"), "Builds"], [css("--brass"), "Spot"], [css("--wall"), "Unserved"], [css("--ink"), "Demand", "line"]]),
       h("h4", { style: { marginTop: "14px" } }, "The price of one more MW, quarter by quarter"), priceBox), ctrl),
     h("div", { class: "readouts" }, ro.cost, ro.floor, ro.tail, ro.spot),
     floorTbl));
@@ -53,7 +53,7 @@ export async function render(root) {
   });
   root.append(
     clicks(null, h("ul", {},
-      h("li", { html: "<b>Lead times set the price of capacity.</b> The demand duals step down from the spot price (nothing else can arrive) to the lease price to the build price as more options can land in time." }),
+      h("li", { html: "<b>Lead times set the price of capacity.</b> Where only spot can arrive in time (Q2 '27, and Q2 '28 once the floor's leases are used up), the next MW costs the spot price. Where the board's floor already over-covers demand (Q3 '27 to Q1 '28), it costs nothing. From Q3 '28 a build decided now can land, so it costs the build price. The lease never prices a single quarter's extra MW, because a lease is an eight-quarter tranche: it prices a sustained increase." }),
       h("li", { html: "<b>The floor has a price you can quote.</b> Re-solve without it: the difference is what you'd pay the neocloud to turn the floor into an “up to.” Move it one MW in one quarter and you get that quarter's price, quoted as a pair, because these rows are degenerate. That's AI Deals Q2 (“the floor is the buyer's liability”) as a number." }),
       h("li", { html: "<b>Every finite plan lies at its end.</b> Ignore what runs past Q4 '29 and the model loves late builds, because it only pays for a quarter of a five-year commitment. Charge it, and late builds vanish and unserved demand appears. Neither is right. Real desks plan over a longer window than they act on, act on the first few quarters, and re-plan." }))),
     say("The next megawatt costs whatever can arrive in time. Next quarter that's spot; in six quarters it's a build. And the take-or-pay floor costs us real money in the quarters we're already covered."),
@@ -84,7 +84,7 @@ export async function render(root) {
       svg.append(hit);
     });
     svg.append(s("polyline", { points: D.slice(0, T).map((d, i) => `${x(i + 0.5)},${y(d)}`).join(" "), fill: "none", stroke: css("--ink"), "stroke-width": 2.2, "stroke-dasharray": "6 3" }));
-    svg.append(s("text", { class: "halo", x: x(T - 0.3), y: y(D[T - 1]) - 8, "text-anchor": "end", fill: css("--ink") }, "demand"));
+    svg.append(s("text", { class: "halo", x: x(T - 0.3), y: y(D[T - 1]) - 8, "text-anchor": "end", fill: css("--ink"), "font-weight": 600 }, "demand"));
     if (p.floorOn) svg.append(s("rect", { x: x(p.floorFrom - 1), y: m.t, width: x(p.floorTo) - x(p.floorFrom - 1), height: 14, fill: css("--wall-soft") }), s("text", { x: x(p.floorFrom - 1) + 4, y: m.t + 11, fill: css("--wall-d") }, "take-or-pay floor"));
     stackBox.prepend(svg);
   }
@@ -100,7 +100,7 @@ export async function render(root) {
     duals.slice(0, T).forEach((d, i) => {
       const r2 = s("rect", { x: x(i) + ((x(1) - x(0)) - bw) / 2, y: y(d), width: bw, height: Math.max(0, y(0) - y(d)), fill: css("--ink-2"), rx: 2 });
       r2.append(s("title", {}, `${QUARTERS[i]}: one more MW costs ${f.m(d)} for the quarter`));
-      svg.append(r2);
+      svg.append(r2, s("text", { class: "val halo", x: x(i + 0.5), y: y(d) - 4, "text-anchor": "middle", "font-size": 10 }, d.toFixed(2)));
     });
     priceBox.innerHTML = ""; priceBox.append(svg, h("p", { class: "note", html: "Bars: the dual of each quarter's demand row, in $M per MW-quarter. A bar of zero means existing commitments already cover one more MW (the floor or a lumpy tranche left slack)." }));
   }
